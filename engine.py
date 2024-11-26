@@ -15,11 +15,11 @@ import re
 # instance object Groq
 client = Groq(
     #api_key="PLEASE, PUT YOUR API KEY HERE"  # os.environ.get("GROQ_API_KEY"),
-    
+
 )
 
 
-def get_youtube_video_id(url: str)-> str:
+def get_youtube_video_id(url: str) -> str:
     """
     Extracts the video ID from a YouTube URL.
 
@@ -59,9 +59,32 @@ def extract_phrases_and_concatenate(json_data: dict) -> str:
     full_text = " ".join(sentence)
     return full_text
 
-
+# a 100 palabras por minuto, en media hora hay 3000. Si se divide la longitud del discurso por la media hora se
+# obtiene redondeando el número de partes que debe tener. El número de partes que debe tener que dividir el discurso.
+# se usa la división de partes para dividir la cadena de texto por igual y se alimenta en una lista. El nº de
+# divisiones controla un bucle que pasa las partes almacenadas en la lista al LLM para que las publique correctamente.
+def divide_and_send_to_llm(text: str, num_parts: int) -> list:
+    # a 100 palabras por minuto, en media hora hay 3000. Si se divide la longitud del discurso por la media hora se
+    # obtiene redondeando el número de partes que debe tener. El número de partes que debe tener que dividir el discurso.
+    # se usa la división de partes para dividir la cadena de texto por igual y se alimenta en una lista. El nº de
+    # divisiones controla un bucle que pasa las partes almacenadas en la lista al LLM para que las publique correctamente.
+    parts = [text[i::num_parts] for i in range(0, len(text), num_parts)]
+    results = []
+    for part in parts:
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": part,
+                }
+            ],
+            model="text-davinci-003",
+            temperature=0,
+        )
+        results.append(chat_completion.choices[0].text.strip())
+    return results
 # Prueba del script
-def resume_transcript(id_video):
+def resume_transcript(id_video: str) -> str:
     chat_completion = client.chat.completions.create(
         messages=[
             {

@@ -90,6 +90,18 @@ def divide_and_resume(speech: str, num_parts: int) -> str:
                 {
                     "role": "user",
                     "content": """STRICT INFORMATION PROCESSING INSTRUCTIONS:
+                                 0. Inner control thought:
+                                     - Review internally step by step all the information received and in a logical way, be careful in the process.
+                                     - No factual inaccuracies.
+                                     - No personal opinions
+                                     - No emotional tone
+                                     - No subjective statements
+                                     - No personal anecdotes
+                                     - No political opinions
+                                     - No sarcasm
+                                     - No negation
+                                     - No exaggeration
+                                     - No irony
                                  1. OUTPUT FORMAT:
                                  - Executive summary in maximum 5 points
                                  - Neutral and direct language
@@ -101,6 +113,7 @@ def divide_and_resume(speech: str, num_parts: int) -> str:
                                  - Extract CONCRETE DATA
                                  - Contextualize without personal opinion
                                  - Prioritize verifiable information
+                                 - Extract key points from the text
 
                                  3. RESTRICTIONS:
                                  - Prohibited use of emotional adjectives

@@ -7,17 +7,18 @@
         API KEY SECTION.
         Follow the instructions in the link: https://console.groq.com/docs/overview
 """
-import math
-
 # import
 from groq import Groq
 from youtube_transcript_api import YouTubeTranscriptApi
 import re
 
+import streamlit as st
+import math
+
 # instance object Groq
 client = Groq(
     # api_key="PLEASE, PUT YOUR API KEY HERE"  # os.environ.get("GROQ_API_KEY"),
-
+    api_key=''
 )
 
 
@@ -34,7 +35,7 @@ def get_youtube_video_id(url: str) -> str:
     # Pattern to find the YouTube video ID
     pattern = r'(?:v=|\/)([0-9A-Za-z_-]{11})'
     result = re.search(pattern, url)
-    return result.group(1) if result else None
+    return result.group(1) if result else validate_youtube_link(url)
 
 
 def extract_phrases_and_concatenate(json_data: dict) -> str:
@@ -62,7 +63,7 @@ def extract_phrases_and_concatenate(json_data: dict) -> str:
     return full_text
 
 
-def divide_and_resume(speech: str, num_parts: int) -> str:
+def divide_and_resume(speech: str, num_parts: int) -> tuple[str, str | None]:
     """Received the text of speech. The number of parts.
        Returns the text of each part, processed with a language model."""
 
@@ -136,8 +137,19 @@ def divide_and_resume(speech: str, num_parts: int) -> str:
             temperature=0,
         )
         counter += 1
-        print("PART: " + str(counter))
-        print(chat_completion.choices[0].message.content)
+        prompt = "PART: " + str(counter), chat_completion.choices[0].message.content
+        response = f"AI: {prompt}"
+        with st.chat_message("assistant"):
+            st.markdown(response)
+        # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": response[0]})
+
+def answer_chat(prompt):
+    response = f"AI: {prompt}"
+    with st.chat_message("assistant"):
+        st.markdown(response)
+    # Add assistant response to chat history
+    st.session_state.messages.append({"role": "assistant", "content": response[0]})
 
 
 def split_speech(speech):
@@ -146,11 +158,27 @@ def split_speech(speech):
     return divide
 
 
-if __name__ == "__main__":
+def validate_youtube_link(url):
+    # Regular expression patterns for different YouTube link formats
+    youtube_patterns = [
+        r'^(https?://)?(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[\w-]+',
+        r'^(https?://)?(www\.)?(youtube\.com/embed/)[\w-]+',
+        r'^(https?://)?(www\.)?(youtube\.com/shorts/)[\w-]+'
+    ]
+
+    # Check if the URL matches any YouTube patterns
+    for pattern in youtube_patterns:
+        if re.match(pattern, url):
+            return True
+
+
+def yt_method(url_youtube):
     # Prompt user to enter YouTube URL
-    url_youtube = input("Enter the URL of the YouTube video: ").strip()
-    id_video = get_youtube_video_id(url_youtube)
-    json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es'])
-    text = extract_phrases_and_concatenate(json)
-    split = split_speech(text)
-    divide_and_resume(text, split)
+    if validate_youtube_link(url_youtube):
+        id_video = get_youtube_video_id(url_youtube)
+        json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es', 'en', 'de'])
+        text = extract_phrases_and_concatenate(json)
+        split = split_speech(text)
+        divide_and_resume(text, split)
+    else:
+        answer_chat("The provided URL is not a valid YouTube video link.")

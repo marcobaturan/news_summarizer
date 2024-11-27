@@ -1,4 +1,11 @@
+# import
 import streamlit as st
-
-st.markdown("# Page 3 🎉")
-st.sidebar.markdown("# Page 3 🎉")
+st.set_page_config(page_title="Welcome",
+                   page_icon=":newspaper:")
+# header
+st.markdown("# Newspapers summarizer :newspaper:")
+# sidebar
+st.sidebar.markdown("# Welcome to News summarizer! 👋")
+st.sidebar.markdown("# Newspapers summarizer :newspaper:")
+st.sidebar.markdown("# YouTube summarizer :tv:️")
+# body chat

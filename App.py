@@ -1,5 +1,6 @@
 # import
 import streamlit as st
+
 # config
 st.set_page_config(page_title="Welcome",
                    page_icon=":newspaper:")
@@ -10,6 +11,9 @@ st.sidebar.markdown("# Welcome to News summarizer! 👋")
 st.sidebar.markdown("# Newspapers summarizer :newspaper:")
 st.sidebar.markdown("# YouTube summarizer :tv:️")
 # Body introduction
+
+# Reads
+
 st.markdown("""# Cut Through the Noise, Stay Informed
 
 In a world drowning in endless news cycles and information overload, your time is your most precious resource. 

@@ -2,9 +2,8 @@
 import streamlit as st
 import time
 from engine import *
-
-st.set_page_config(page_title="Welcome",
-                   page_icon=":newspaper:")
+st.set_page_config(page_title="YT",
+                   page_icon=":tv:")
 
 # header
 st.markdown("# YouTube summarizer :tv:️")
@@ -14,7 +13,8 @@ st.sidebar.markdown("# Newspapers summarizer :newspaper:")
 st.sidebar.markdown("# YouTube summarizer :tv:️")
 # chat
 st.title("For print to PDF just type Crtl + P.")
-
+# Get LLM API key from user
+llm_api_key = st.text_input("Please enter your LLM API key:", "")
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -35,4 +35,4 @@ if prompt := st.chat_input("Please, paste the YouTube's URL here."):
 
     # Display assistant response in chat message container
     time.sleep(1)  # simulate response delay (1 second)
-    yt_method(response)
+    yt_method(response, llm_api_key)

@@ -10,16 +10,17 @@
 # import
 from groq import Groq
 from youtube_transcript_api import YouTubeTranscriptApi
-import re
-
 import streamlit as st
+import re
 import math
 
-# instance object Groq
-client = Groq(
-    # api_key="PLEASE, PUT YOUR API KEY HERE"  # os.environ.get("GROQ_API_KEY"),
-    api_key=''
-)
+
+def api_call(api_key):
+    # instance object Groq
+    client = Groq(
+        api_key=api_key,
+    )
+    return client
 
 
 def get_youtube_video_id(url: str) -> str:
@@ -63,7 +64,7 @@ def extract_phrases_and_concatenate(json_data: dict) -> str:
     return full_text
 
 
-def divide_and_resume(speech: str, num_parts: int) -> tuple[str, str | None]:
+def divide_and_resume(speech: str, num_parts: int, api_key: str) -> tuple[str, str | None]:
     """Received the text of speech. The number of parts.
        Returns the text of each part, processed with a language model."""
 
@@ -85,6 +86,7 @@ def divide_and_resume(speech: str, num_parts: int) -> tuple[str, str | None]:
     # Process each part with LLM
     results = []
     counter = 0
+    client = api_call(api_key)
     for part in parts:
         chat_completion = client.chat.completions.create(
             messages=[
@@ -144,6 +146,7 @@ def divide_and_resume(speech: str, num_parts: int) -> tuple[str, str | None]:
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response[0]})
 
+
 def answer_chat(prompt):
     response = f"AI: {prompt}"
     with st.chat_message("assistant"):
@@ -172,13 +175,13 @@ def validate_youtube_link(url):
             return True
 
 
-def yt_method(url_youtube):
+def yt_method(url_youtube, llm_api_key):
     # Prompt user to enter YouTube URL
     if validate_youtube_link(url_youtube):
         id_video = get_youtube_video_id(url_youtube)
         json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es', 'en', 'de'])
         text = extract_phrases_and_concatenate(json)
         split = split_speech(text)
-        divide_and_resume(text, split)
+        divide_and_resume(text, split, llm_api_key)
     else:
         answer_chat("The provided URL is not a valid YouTube video link.")

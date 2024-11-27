@@ -17,7 +17,7 @@ import re
 # instance object Groq
 client = Groq(
     # api_key="PLEASE, PUT YOUR API KEY HERE"  # os.environ.get("GROQ_API_KEY"),
-    api_key='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'
+
 )
 
 

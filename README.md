@@ -1,9 +1,10 @@
 # __News summarizer__
 
 ## Author
-- [Marco Baturan] <marco.baturan@gmail.com>
+- author: Marco Baturan
+- e-mail: marco.baturan@gmail.com
 - Project: https://github.com/marcobaturan/news_summarizer
-- Website: None
+- LinkedIn: https://www.linkedin.com/in/marcogarciabaturan/
 
 ## Contributors
 - None
@@ -12,7 +13,7 @@ This project is licensed under GPL-3.0. For more information, please refer to th
 of this project.
 
 ## Abstract
-news summarizer is a simple program who reads the URL 
+News summarizer is a simple program who reads the URL 
 from YouTube, extract the transcription and resume by
 points the key ideas. Reduce the amount of time invest
 in news.
@@ -23,18 +24,34 @@ Read the link [how-to-gpl](https://www.gnu.org/licenses/gpl-howto.html)
 
 ## Documentation
 
-    $ ./install_complements.sh
-    $ pip install -r requirements.txt 
-    $ python main.py
+### How to run the program
 
+    $ virtualenv venv
+    $ source venv/bin/activate
+    $ pip install -r requirements.txt 
+    $ streamlit run App.py
+
+### Access to the web app
+
+    Local URL: http://localhost:8506
 
 ## Folder structure
-      .
-      ├── gpl-3.0.txt
-      ├── main.py
-      ├── README.md
-      └── requirements.txt
 
+    .
+    ├── App.py
+    ├── engine.py
+    ├── gpl-3.0.txt
+    ├── pages
+    │   ├── __init__.py
+    │   ├── Newspaper.py
+    │   └── YouTube.py
+    ├── pictures
+    │   ├── APIKEYGROQ.png
+    │   ├── main_page.png
+    │   ├── ytsidebar.png
+    │   └── ytsummary.png
+    ├── README.md
+    └── requirements.txt
 
 ## Testing
 
@@ -43,12 +60,26 @@ Read the link [how-to-gpl](https://www.gnu.org/licenses/gpl-howto.html)
     RAM:      15 GiB
     CPU:      AMD Ryzen 7 4700U with Radeon Graphics × 8 
     GRAPHICS: RENOIR (Renoir, LLVM 15.0.6, DRM 3.47, 5.19.0-45-generic)
-    VERSION:  Python 3.10.6
+    VERSION:  Python 3.10.12
 
 ## Workflow
+   
+    Enter to browser:
 
-    $ python3 main.py
-    $ Enter the URL of the YouTube video: LINK [ENTER]
+![Main Page](pictures/main_page.png)
+
+    Click in YouTube link in left sidebar.
+
+![YTsidebar](pictures/ytsidebar.png)
+
+    Put your API KEY obtained in Groq in the top field and pulse Enter.
+
+![APIKEY](pictures/APIKEYGROQ.png)
+
+    Copy a YT's URL and paste in the low text input field and pulse Enter.
+    URL example: https://www.youtube.com/watch?v=-W1dpRkthrI  (How to fry an egg)
+
+![YTURL](pictures/ytsummary.png)
 
 
 ## Resources

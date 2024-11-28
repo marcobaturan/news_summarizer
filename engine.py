@@ -140,7 +140,7 @@ def divide_and_resume(speech: str, num_parts: int, api_key: str) -> tuple[str, s
         )
         counter += 1
         prompt = "PART: " + str(counter), chat_completion.choices[0].message.content
-        response = f"AI: {prompt}"
+        response = f"AI: {prompt[0]} - {prompt[1]}"
         with st.chat_message("assistant"):
             st.markdown(response)
         # Add assistant response to chat history

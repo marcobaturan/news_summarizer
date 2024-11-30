@@ -13,6 +13,11 @@ from youtube_transcript_api import YouTubeTranscriptApi
 import streamlit as st
 import re
 import math
+import requests
+from bs4 import BeautifulSoup
+import logging
+import logging
+from urllib.parse import urljoin, urlparse
 
 
 def api_call(api_key):
@@ -64,9 +69,11 @@ def extract_phrases_and_concatenate(json_data: dict) -> str:
     return full_text
 
 
-def divide_and_resume(speech: str, num_parts: int, api_key: str) -> tuple[str, str | None]:
+def divide_and_resume(speech: str, num_parts: int, api_key: str, lang: str, selected_limit: int = 15, ) -> tuple[
+    str, str | None]:
     """Received the text of speech. The number of parts.
-       Returns the text of each part, processed with a language model."""
+       Returns the text of each part, processed with a language model.
+       :param lang: """
 
     # Split text into words
     words = speech.split()
@@ -131,14 +138,17 @@ def divide_and_resume(speech: str, num_parts: int, api_key: str) -> tuple[str, s
                                  - Point 3: When and where
                                  - Point 4: Immediate consequences
                                  - Point 5: Relevant context
-
-                                 {id_video}""".format(id_video=part)
+                                 5. Output language: {language}
+                                 {id_video}""".format(id_video=part, language=lang)
                 }
             ],
             model="llama3-8b-8192",
             temperature=0,
         )
         counter += 1
+        if counter >= selected_limit:
+            st.session_state.messages.append({"role": "assistant", "content": "Maximum cycle limit reached"})
+            break
         prompt = "PART: " + str(counter), chat_completion.choices[0].message.content
         response = f"AI: {prompt[0]} - {prompt[1]}"
         with st.chat_message("assistant"):
@@ -175,13 +185,148 @@ def validate_youtube_link(url):
             return True
 
 
-def yt_method(url_youtube, llm_api_key):
+def yt_method(url_youtube, llm_api_key, lang, selected_limit):
     # Prompt user to enter YouTube URL
     if validate_youtube_link(url_youtube):
         id_video = get_youtube_video_id(url_youtube)
         json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es', 'en', 'de'])
         text = extract_phrases_and_concatenate(json)
         split = split_speech(text)
-        divide_and_resume(text, split, llm_api_key)
+        divide_and_resume(text, split, llm_api_key, lang, selected_limit)
     else:
         answer_chat("The provided URL is not a valid YouTube video link.")
+
+
+def np_method(text, llm_api_key, lang, selected_limit):
+    # Prompt user to enter Newspaper URL
+    if True:
+        dict_to_strign = "{}".format(text["linked_pages_text"])
+        split = split_speech(dict_to_strign)
+        divide_and_resume(dict_to_strign, split, llm_api_key, lang, selected_limit)
+    else:
+        answer_chat("The provided URL is not a valid Newspaper article link. Format must be https://website.com")
+
+
+"""
+Web Page Text Extraction Utility
+
+This module provides a robust mechanism for extracting textual content
+from web pages using modern web scraping techniques. The utility focuses
+on retrieving meaningful text while maintaining a clean, pythonic approach.
+
+Author: Assistant
+Date: November 2024
+Licence: MIT
+"""
+
+
+def extract_webpage_text(url: str, timeout: int = 10, max_depth: int = 0) -> dict:
+    """
+    Extracts all readable text content from a specified web page and its first-level links.
+
+    This function retrieves the HTML content of a given URL and systematically extracts
+    human-readable text, filtering out navigation elements, scripts, and other non-textual
+    components. It can also crawl first-level links for additional text extraction.
+
+    Args:
+        url (str): The fully qualified URL of the webpage to scrape.
+        timeout (int, optional): Maximum time in seconds to wait for server response.
+                                 Defaults to 10 seconds.
+        max_depth (int, optional): Maximum depth of link crawling. Defaults to 1 (first-level links).
+
+    Returns:
+        dict: A dictionary containing:
+            - 'main_page_text': Text extracted from the main page
+            - 'linked_pages_text': Dictionary of texts from first-level links
+
+    Raises:
+        requests.RequestException: If there are network-related issues.
+        ValueError: If the URL is invalid or cannot be processed.
+    """
+    # Initialise logging for tracking potential extraction issues
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    # Set up headers to mimic browser behaviour
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                      '(KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+
+    # Function to extract text from a webpage
+    def extract_text_from_page(page_url):
+        try:
+            # Perform HTTP request
+            response = requests.get(page_url, headers=headers, timeout=timeout)
+            response.raise_for_status()
+
+            # Parse HTML content using BeautifulSoup
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            # Remove script and style elements which do not contain readable text
+            for script_or_style in soup(['script', 'style']):
+                script_or_style.decompose()
+
+            # Extract text from all paragraph, heading, and div elements
+            text_elements = soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div'])
+
+            # Concatenate text, stripping unnecessary whitespace
+            extracted_text = ' '.join(element.get_text(strip=True) for element in text_elements)
+
+            # Log successful extraction
+            logger.info(f"Successfully extracted text from {page_url}")
+            return extracted_text
+
+        except requests.RequestException as network_error:
+            logger.error(f"Network error occurred while extracting {page_url}: {network_error}")
+            return f"Network error occurred: {network_error}"
+
+    # Main extraction process
+    try:
+        # Extract text from the main page
+        main_page_text = extract_text_from_page(url)
+
+        # Prepare result dictionary
+        result = {
+            'main_page_text': main_page_text,
+            'linked_pages_text': {}
+        }
+
+        # Extract first-level links
+        soup = BeautifulSoup(requests.get(url, headers=headers, timeout=timeout).text, 'html.parser')
+
+        # Get the base domain to ensure we stay on the same site
+        base_domain = urlparse(url).netloc
+
+        # Find all links on the page
+        links = soup.find_all('a', href=True)
+
+        # Set to keep track of processed URLs to avoid duplicates
+        processed_urls = set()
+
+        # Process first-level links
+        for link in links:
+            # Construct absolute URL
+            full_link = urljoin(url, link['href'])
+
+            # Check if the link is on the same domain and hasn't been processed
+            if (urlparse(full_link).netloc == base_domain and
+                    full_link not in processed_urls and
+                    full_link != url):
+                try:
+                    # Extract text from the linked page
+                    linked_page_text = extract_text_from_page(full_link)
+
+                    # Store the extracted text
+                    result['linked_pages_text'][full_link] = linked_page_text
+
+                    # Add to processed URLs
+                    processed_urls.add(full_link)
+
+                except Exception as e:
+                    logger.error(f"Error processing link {full_link}: {e}")
+
+        return result
+
+    except requests.RequestException as network_error:
+        return {"error": f"Network error occurred: {network_error}"}

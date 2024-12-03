@@ -69,11 +69,26 @@ def extract_phrases_and_concatenate(json_data: dict) -> str:
     return full_text
 
 
-def divide_and_resume(speech: str, num_parts: int, api_key: str, lang: str, selected_limit: int = 15, ) -> tuple[
+def divide_and_resume(speech: str, num_parts: int, api_key: str, lang: str, selected_limit: int, ) -> tuple[
     str, str | None]:
-    """Received the text of speech. The number of parts.
-       Returns the text of each part, processed with a language model.
-       :param lang: """
+    """Divide a given text into parts and process them with a language model.
+
+        Args:
+            speech (str): The input text to be processed
+            num_parts (int): Number of parts to divide the text into
+            api_key (str): API key for making language model calls
+            lang (str): Target language for processing
+            selected_limit (int, optional): Limit on number of parts to process.
+                                            0 means process all parts. Defaults to 0.
+
+        Returns:
+            Tuple containing:
+            - List of original text parts
+            - List of processed results (or None if processing fails)"""
+
+    # Validate input parameters
+    if num_parts <= 0:
+        st.session_state.messages.append({"role": "assistant", "content": "Maximum cycle limit reached"})
 
     # Split text into words
     words = speech.split()
@@ -90,11 +105,19 @@ def divide_and_resume(speech: str, num_parts: int, api_key: str, lang: str, sele
         part = ' '.join(words[start:end])
         parts.append(part)
 
+    # Determine how many parts to process
+    # If selected_limit is 0 or greater than total parts, process all parts
+    process_limit = (
+        num_parts if selected_limit == 0 or selected_limit > num_parts
+        else selected_limit
+    )
+
+
     # Process each part with LLM
     results = []
     counter = 0
     client = api_call(api_key)
-    for part in parts:
+    for i in range(process_limit):
         chat_completion = client.chat.completions.create(
             messages=[
                 {
@@ -139,16 +162,13 @@ def divide_and_resume(speech: str, num_parts: int, api_key: str, lang: str, sele
                                  - Point 4: Immediate consequences
                                  - Point 5: Relevant context
                                  5. Output language: {language}
-                                 {id_video}""".format(id_video=part, language=lang)
+                                 {id_video}""".format(id_video=parts[i], language=lang)
                 }
             ],
             model="llama3-8b-8192",
             temperature=0,
         )
-        counter += 1
-        if counter >= selected_limit:
-            st.session_state.messages.append({"role": "assistant", "content": "Maximum cycle limit reached"})
-            break
+
         prompt = "PART: " + str(counter), chat_completion.choices[0].message.content
         response = f"AI: {prompt[0]} - {prompt[1]}"
         with st.chat_message("assistant"):
@@ -185,24 +205,24 @@ def validate_youtube_link(url):
             return True
 
 
-def yt_method(url_youtube, llm_api_key, lang, selected_limit):
+def yt_method(url_youtube, llm_api_key, language, selected_limit):
     # Prompt user to enter YouTube URL
     if validate_youtube_link(url_youtube):
         id_video = get_youtube_video_id(url_youtube)
-        json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es', 'en', 'de'])
+        json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es', 'en', 'de','hr'])
         text = extract_phrases_and_concatenate(json)
         split = split_speech(text)
-        divide_and_resume(text, split, llm_api_key, lang, selected_limit)
+        divide_and_resume(text, split, llm_api_key, language, selected_limit)
     else:
         answer_chat("The provided URL is not a valid YouTube video link.")
 
 
-def np_method(text, llm_api_key, lang, selected_limit):
+def np_method(text, llm_api_key, language, selected_limit):
     # Prompt user to enter Newspaper URL
     if True:
         dict_to_strign = "{}".format(text["linked_pages_text"])
         split = split_speech(dict_to_strign)
-        divide_and_resume(dict_to_strign, split, llm_api_key, lang, selected_limit)
+        divide_and_resume(dict_to_strign, split, llm_api_key, language, selected_limit)
     else:
         answer_chat("The provided URL is not a valid Newspaper article link. Format must be https://website.com")
 

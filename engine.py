@@ -147,6 +147,10 @@ def divide_and_resume(speech: str, num_parts: int, api_key: str, lang: str, sele
                                  - Contextualize without personal opinion
                                  - Prioritize verifiable information
                                  - Extract key points from the text
+                                 - Read between the lines.
+                                 - Which important background info has author omitted? 
+                                 - What are his political positions? 
+                                 - What was his intent in publishing this?
 
                                  3. RESTRICTIONS:
                                  - Prohibited use of emotional adjectives

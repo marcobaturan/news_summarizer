@@ -55,7 +55,8 @@ Read the link [how-to-gpl](https://www.gnu.org/licenses/gpl-howto.html)
 
 ## Testing
 
-    OS:       Ubuntu Mate LTS 22.04 64 bits
+    OS 1:     Ubuntu Mate LTS 22.04 64 bits
+    OS 2:     Debian 12 Xfce LTS 64 bits
     HW:       HP Laptop
     RAM:      15 GiB
     CPU:      AMD Ryzen 7 4700U with Radeon Graphics × 8 

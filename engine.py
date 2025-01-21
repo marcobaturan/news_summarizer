@@ -16,7 +16,6 @@ import math
 import requests
 from bs4 import BeautifulSoup
 import logging
-import logging
 from urllib.parse import urljoin, urlparse
 
 
@@ -140,6 +139,7 @@ def divide_and_resume(speech: str, num_parts: int, api_key: str, lang: str, sele
                                  - Neutral and direct language
                                  - No subjective assessments
                                  - Style: informative and objective
+                                 - Do not be verbatim.
 
                                  2. MANDATORY ANALYSIS:
                                  - Identify MAIN FACTS
@@ -165,7 +165,11 @@ def divide_and_resume(speech: str, num_parts: int, api_key: str, lang: str, sele
                                  - Point 3: When and where
                                  - Point 4: Immediate consequences
                                  - Point 5: Relevant context
-                                 5. Output language: {language}
+                                 
+                                 5. Flow work in divided resume:
+                                 - If the resume is divided then retain the previous analysis to concatenate the process.
+                                 
+                                 6. Output language: {language}
                                  {id_video}""".format(id_video=parts[i], language=lang)
                 }
             ],
@@ -181,7 +185,16 @@ def divide_and_resume(speech: str, num_parts: int, api_key: str, lang: str, sele
         st.session_state.messages.append({"role": "assistant", "content": response[0]})
 
 
-def answer_chat(prompt):
+def answer_chat(prompt: str)-> None:
+    """
+    Displays an assistant response in the chat interface.
+
+    Args:
+        prompt (str): The text to be displayed as the assistant's response.
+
+    Returns:
+        None
+    """
     response = f"AI: {prompt}"
     with st.chat_message("assistant"):
         st.markdown(response)
@@ -189,13 +202,31 @@ def answer_chat(prompt):
     st.session_state.messages.append({"role": "assistant", "content": response[0]})
 
 
-def split_speech(speech):
+def split_speech(speech: str)-> int:
+    """
+        Calculates the number of parts to divide a given speech into, based on a threshold of 3000 words per part.
+
+        Args:
+            speech (str): The input speech to be divided.
+
+        Returns:
+            int: The number of parts to divide the speech into.
+    """
     words = speech.split()
     divide = math.ceil(len(words) / 3000)
     return divide
 
 
-def validate_youtube_link(url):
+def validate_youtube_link(url: str)-> bool:
+    """
+        Validates whether a given URL is a valid YouTube link.
+
+        Args:
+            url (str): The URL to be validated.
+
+        Returns:
+            bool: True if the URL is a valid YouTube link, False otherwise.
+    """
     # Regular expression patterns for different YouTube link formats
     youtube_patterns = [
         r'^(https?://)?(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[\w-]+',
@@ -209,27 +240,84 @@ def validate_youtube_link(url):
             return True
 
 
-def yt_method(url_youtube, llm_api_key, language, selected_limit):
-    # Prompt user to enter YouTube URL
+def yt_method(url_youtube: str, llm_api_key: str, language: str, selected_limit: int) -> None:
+    """
+    Retrieves the transcript of a YouTube video and generates a summary.
+
+    Args:
+        url_youtube (str): The URL of the YouTube video.
+        llm_api_key (str): The API key for the LLM model.
+        language (str): The language of the transcript.
+        selected_limit (int): The number of summaries to generate.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If the YouTube URL is invalid or the transcript cannot be retrieved.
+
+    Notes:
+        This function uses the YouTubeTranscriptApi to retrieve the transcript of the video.
+        It then uses the extract_phrases_and_concatenate function to extract phrases from the transcript
+        and concatenate them into a single string. The speech is then split into parts based on a threshold
+        of 3000 words using the split_speech function. Finally, the divide_and_resume function is used
+        to generate and display the summaries.
+    """
+    # Validate the YouTube URL
     if validate_youtube_link(url_youtube):
+        # Get the video ID from the URL
         id_video = get_youtube_video_id(url_youtube)
-        json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es', 'en', 'de','hr'])
+
+        # Retrieve the transcript of the video in the specified language
+        json = YouTubeTranscriptApi.get_transcript(id_video, languages=[language])
+
+        # Extract phrases and concatenate them into a single string
         text = extract_phrases_and_concatenate(json)
+
+        # Split the speech into parts based on a threshold of 3000 words
         split = split_speech(text)
+
+        # Generate and display the summaries
         divide_and_resume(text, split, llm_api_key, language, selected_limit)
     else:
+        # Display a message if the URL is not a valid YouTube link
         answer_chat("The provided URL is not a valid YouTube video link.")
 
 
-def np_method(text, llm_api_key, language, selected_limit):
+def np_method(text: str, llm_api_key: str, language: str, selected_limit: str) -> None:
+    """
+    Generates a summary of a newspaper article using the provided text and LLM API key.
+
+    Args:
+        text (dict): A dictionary containing the text of the newspaper article.
+        llm_api_key (str): The API key for the LLM model.
+        language (str): The language of the text.
+        selected_limit (int): The number of summaries to generate.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If the text is not a valid dictionary or the LLM API key is invalid.
+
+    Notes:
+        This function uses the provided text to generate a summary using the LLM API.
+        It first extracts the linked pages text from the dictionary, then splits the text into parts based on a threshold of 3000 words.
+        Finally, it uses the divide_and_resume function to generate and display the summaries.
+    """
     # Prompt user to enter Newspaper URL
     if True:
+        # Extract linked pages text from the dictionary
         dict_to_strign = "{}".format(text["linked_pages_text"])
+
+        # Split the speech into parts based on a threshold of 3000 words
         split = split_speech(dict_to_strign)
+
+        # Generate and display the summaries
         divide_and_resume(dict_to_strign, split, llm_api_key, language, selected_limit)
     else:
+        # Display a message if the URL is not a valid Newspaper article link
         answer_chat("The provided URL is not a valid Newspaper article link. Format must be https://website.com")
-
 
 """
 Web Page Text Extraction Utility

@@ -16,7 +16,7 @@ st.sidebar.markdown("# YouTube summarizer :tv:️")
 st.title("For print to PDF just type Crtl + P.")
 # Get LLM API key from user
 llm_api_key = st.text_input("Please enter your LLM API key:", "")
-language = st.selectbox("Please, select a language: ", ["Spanish (auto-generated)","Spanish", "Croatian", "German", "English"])
+language = st.selectbox("Please, select a language: ", ["Spanish", "Croatian", "German", "English"])
 limit = st.selectbox("Please, select nº of articles: ",
                      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 23, 24, 25])
 depth = st.selectbox("Please, select depth of search: ", [0, 1])

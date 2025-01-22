@@ -169,7 +169,7 @@ def divide_and_resume(speech: str, num_parts: int, api_key: str, lang: str, sele
                                  5. Flow work in divided resume:
                                  - If the resume is divided then retain the previous analysis to concatenate the process.
                                  
-                                 6. Output language: {language}
+                                 6. Imperative: translate to language: {language}
                                  {id_video}""".format(id_video=parts[i], language=lang)
                 }
             ],
@@ -269,8 +269,7 @@ def yt_method(url_youtube: str, llm_api_key: str, language: str, selected_limit:
         id_video = get_youtube_video_id(url_youtube)
 
         # Retrieve the transcript of the video in the specified language
-        json = YouTubeTranscriptApi.get_transcript(id_video, languages=[language])
-
+        json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es','en','fr','de','it','hr','pt'])
         # Extract phrases and concatenate them into a single string
         text = extract_phrases_and_concatenate(json)
 

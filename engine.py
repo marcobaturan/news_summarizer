@@ -21,12 +21,6 @@ import logging
 from urllib.parse import urljoin, urlparse
 
 
-# cookies
-cookies = {'SOCS': 'CAISHAgCEhJnd3NfMjAyNDEyMDMtMF9SQzEaAmVzIAEaBgiA2sO6Bg',
-        'SOCS': 'CAISHAgCEhJnd3NfMjAyNDEyMDMtMF9SQzEaAmVzIAEaBgiA2sO6Bg',
-        'SNID':'AFAt11qAYTOVrf4Jw2K-4zC_wGRwtEOnVzFt4C0g'
-        }
-
 
 
 def api_call(api_key):
@@ -279,7 +273,7 @@ def yt_method(url_youtube: str, llm_api_key: str, language: str, selected_limit:
         id_video = get_youtube_video_id(url_youtube)
 
         # Retrieve the transcript of the video in the specified language
-        json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es','en','fr','de','it','hr','pt'], proxies={'http': '198.23.239.134:6540:cgirlzeq:bhlduner1c3x'}, cookies=cookies)
+        json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es','en','fr','de','it','hr','pt'], proxies={'http': '198.23.239.134:6540:cgirlzeq:bhlduner1c3x'}, cookies='cookies.txt')
         time.sleep(3) # avoid overload google service
         # Extract phrases and concatenate them into a single string
         text = extract_phrases_and_concatenate(json)

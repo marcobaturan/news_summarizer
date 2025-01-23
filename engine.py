@@ -21,8 +21,6 @@ import logging
 from urllib.parse import urljoin, urlparse
 
 
-
-
 def api_call(api_key):
     # instance object Groq
     client = Groq(
@@ -115,7 +113,6 @@ def divide_and_resume(speech: str, num_parts: int, api_key: str, lang: str, sele
         else selected_limit
     )
 
-
     # Process each part with LLM
     results = []
     counter = 0
@@ -189,7 +186,7 @@ def divide_and_resume(speech: str, num_parts: int, api_key: str, lang: str, sele
         st.session_state.messages.append({"role": "assistant", "content": response[0]})
 
 
-def answer_chat(prompt: str)-> None:
+def answer_chat(prompt: str) -> None:
     """
     Displays an assistant response in the chat interface.
 
@@ -206,7 +203,7 @@ def answer_chat(prompt: str)-> None:
     st.session_state.messages.append({"role": "assistant", "content": response[0]})
 
 
-def split_speech(speech: str)-> int:
+def split_speech(speech: str) -> int:
     """
         Calculates the number of parts to divide a given speech into, based on a threshold of 3000 words per part.
 
@@ -221,7 +218,7 @@ def split_speech(speech: str)-> int:
     return divide
 
 
-def validate_youtube_link(url: str)-> bool:
+def validate_youtube_link(url: str) -> bool:
     """
         Validates whether a given URL is a valid YouTube link.
 
@@ -273,10 +270,12 @@ def yt_method(url_youtube: str, llm_api_key: str, language: str, selected_limit:
         id_video = get_youtube_video_id(url_youtube)
 
         # Retrieve the transcript of the video in the specified language
-        json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es','en','fr','de','it','hr','pt']\
-                                                   ,cookies='cookies.txt')
-        #proxies={'http': '198.23.239.134:6540:cgirlzeq:bhlduner1c3x'},
-        time.sleep(3) # avoid overload google service
+        json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es', 'en', 'fr', 'de', 'it', 'hr', 'pt']
+                                                   , proxies={
+                                                    'http': 'https://cgirlzeq:bhlduner1c3x@207.244.217.165:6712'}
+                                                   , cookies='cookies.txt')
+        # proxies={'http': 'https://cgirlzeq:bhlduner1c3x@207.244.217.165:6712'},
+        time.sleep(3)  # avoid overload google service
         # Extract phrases and concatenate them into a single string
         text = extract_phrases_and_concatenate(json)
 
@@ -324,6 +323,7 @@ def np_method(text: str, llm_api_key: str, language: str, selected_limit: str) -
     else:
         # Display a message if the URL is not a valid Newspaper article link
         answer_chat("The provided URL is not a valid Newspaper article link. Format must be https://website.com")
+
 
 """
 Web Page Text Extraction Utility

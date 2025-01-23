@@ -8,7 +8,7 @@ st.set_page_config(page_title="Welcome",
 st.write("# Welcome to News summarizer! 👋")
 # sidebar
 st.sidebar.markdown("# Welcome to News summarizer! 👋")
-st.sidebar.markdown("# Newspapers summarizer :newspaper:")
+# st.sidebar.markdown("# Newspapers summarizer :newspaper:")
 st.sidebar.markdown("# YouTube summarizer :tv:️")
 # Body introduction
 

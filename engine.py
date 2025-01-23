@@ -7,6 +7,8 @@
         API KEY SECTION.
         Follow the instructions in the link: https://console.groq.com/docs/overview
 """
+import time
+
 # import
 from groq import Groq
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -269,7 +271,8 @@ def yt_method(url_youtube: str, llm_api_key: str, language: str, selected_limit:
         id_video = get_youtube_video_id(url_youtube)
 
         # Retrieve the transcript of the video in the specified language
-        json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es','en','fr','de','it','hr','pt'])
+        json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es','en','fr','de','it','hr','pt'], proxies={'http': '198.23.239.134:6540:cgirlzeq:bhlduner1c3x'})
+        time.sleep(3) # avoid overload google service
         # Extract phrases and concatenate them into a single string
         text = extract_phrases_and_concatenate(json)
 

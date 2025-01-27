@@ -269,12 +269,8 @@ def yt_method(url_youtube: str, llm_api_key: str, language: str, selected_limit:
     if validate_youtube_link(url_youtube):
         # Get the video ID from the URL
         id_video = get_youtube_video_id(url_youtube)
-        try:
-            # Retrieve the transcript of the video in the specified language
-            json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es', 'en', 'fr', 'de', 'it', 'hr', 'pt'])
-        except Exception as e:
-            print(f"Error: {e}")
-
+        # Retrieve the transcript of the video in the specified language
+        json = YouTubeTranscriptApi.get_transcript(id_video, languages=['es', 'en', 'fr', 'de', 'it', 'hr', 'pt'])
         time.sleep(3)  # avoid overload google service
         # Extract phrases and concatenate them into a single string
         text = extract_phrases_and_concatenate(json)

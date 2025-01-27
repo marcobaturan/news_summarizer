@@ -265,6 +265,7 @@ def yt_method(url_youtube: str, llm_api_key: str, language: str, selected_limit:
         to generate and display the summaries.
     """
     # Validate the YouTube URL
+    global json
     if validate_youtube_link(url_youtube):
         # Get the video ID from the URL
         id_video = get_youtube_video_id(url_youtube)

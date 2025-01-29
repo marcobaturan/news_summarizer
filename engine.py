@@ -450,8 +450,8 @@ import requests
 def check_proxy(proxy_ip):
     try:
         response = requests.get('https://www.youtube.com',
-                              proxies={'http': f'http://{proxy_ip}:80',
-                                     'https': f'http://{proxy_ip}:80'},
+                              proxies={'http': f'http://{proxy_ip}:443',
+                                     'https': f'http://{proxy_ip}:443'},
                               timeout=5)
         return response.status_code == 200
     except Exception as e:

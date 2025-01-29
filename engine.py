@@ -444,3 +444,17 @@ def extract_webpage_text(url: str, timeout: int = 10, max_depth: int = 0) -> dic
 
     except requests.RequestException as network_error:
         return {"error": f"Network error occurred: {network_error}"}
+
+import requests
+
+def check_proxy(proxy_ip):
+    try:
+        response = requests.get('https://www.youtube.com',
+                              proxies={'http': f'http://{proxy_ip}:80',
+                                     'https': f'http://{proxy_ip}:80'},
+                              timeout=5)
+        return response.status_code == 200
+    except Exception as e:
+        print(f"Error checking proxy: {str(e)}")
+        return False
+

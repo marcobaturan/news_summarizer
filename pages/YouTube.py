@@ -2,7 +2,11 @@
 import streamlit as st
 import time
 from engine import *
-
+# Verificar antes de usar
+if check_proxy('167.99.199.248'):
+    print("Proxy funcionando")
+else:
+    print("Proxy no accesible")
 st.set_page_config(page_title="YT",
                    page_icon=":tv:")
 

@@ -270,7 +270,7 @@ def yt_method(url_youtube: str, llm_api_key: str, language: str, selected_limit:
         # Get the video ID from the URL
         id_video = get_youtube_video_id(url_youtube)
         # Retrieve the transcript of the video in the specified language
-        json = YouTubeTranscriptApi.get_transcript(id_video,  languages=['es', 'en', 'fr', 'de', 'it', 'hr', 'pt'], proxies={"https:":"https://8c5906b99fbd1c0bcd0f916d545c565ade3e4f4217dafebc86980c29d70fb8f762c7b52634015e6ee91455c0ebf218b7bdc251d17cde3b5d7a135776a83b0d3b:ttarelx4u19q@proxy.toolip.io:31111"})
+        json = YouTubeTranscriptApi.get_transcript(id_video,  languages=['es', 'en', 'fr', 'de', 'it', 'hr', 'pt'], proxies={"https:":"https://8c5906b99fbd1c0bcd0f916d545c565a0fa7d2b8001268f4d1690868c4cbcf02340a4206d84017c00cb874fd2552ed44dd841f92ded88b396236190d72e97d96login:pecelt58j6z0@proxy.toolip.io:31112"})
         # Extract phrases and concatenate them into a single string
         text = extract_phrases_and_concatenate(json)
 
